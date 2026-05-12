@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Slider</title>
+
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #dce8d7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── Section ── */
+    .team-section {
+      width: 100%;
+      padding: 80px 0 60px;
+      overflow: hidden;
+    }
+
+    .team-section__heading {
+      text-align: center;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 28px;
+      letter-spacing: -0.5px;
+      color: #1a2e1a;
+      margin-bottom: 56px;
+    }
+
+    /* ── Swiper container ── */
+    .team-swiper {
+      width: 100%;
+      /* overflow visible so scaled slides bleed naturally into each other */
+      overflow: visible;
+    }
+
+    /* Clip to viewport width on the outer wrapper */
+    .team-swiper-outer {
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* ── Slide base ── */
+    .swiper-slide {
+      width: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      transform: scale(0.67);
+      opacity: 0.45;
+      transition:
+        transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        opacity   0.5s ease;
+      cursor: pointer;
+    }
+
+    .swiper-slide-active {
+      transform: scale(1);
+      opacity: 1;
+      cursor: default;
+    }
+
+    /* ── Photo wrapper ── */
+    .team-card__image-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+    }
+
+    /* Green accent square — only shown on active slide */
+    .team-card__accent {
+      position: absolute;
+      width: 52%;
+      aspect-ratio: 1;
+      background: #3d6b46;
+      bottom: -8px;
+      left: -10px;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .swiper-slide-active .team-card__accent {
+      opacity: 1;
+    }
+
+    .team-card__photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+      z-index: 1;
+      /* placeholder background */
+      background: #b8cbb4;
+    }
+
+    /* ── Bio ── */
+    .team-card__bio {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease 0.1s, visibility 0.3s ease 0.1s;
+    }
+
+    .swiper-slide-active .team-card__bio {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .team-card__name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 22px;
+      color: #1a2e1a;
+      line-height: 1.2;
+    }
+
+    .team-card__role {
+      font-size: 13px;
+      font-weight: 400;
+      color: #3d5c3d;
+      letter-spacing: 0.01em;
+    }
+
+    .team-card__linkedin {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 6px;
+      color: #0a66c2;
+      text-decoration: none;
+    }
+
+    .team-card__linkedin svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ── Controls ── */
+    .team-swiper-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 40px;
+    }
+
+    /* Nav buttons */
+    .team-swiper-prev,
+    .team-swiper-next {
+      position: static;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1.5px solid #1a2e1a;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    .team-swiper-prev:hover,
+    .team-swiper-next:hover {
+      background: #1a2e1a;
+    }
+
+    .team-swiper-prev:hover svg,
+    .team-swiper-next:hover svg {
+      stroke: #dce8d7;
+    }
+
+    .team-swiper-prev svg,
+    .team-swiper-next svg {
+      width: 16px;
+      height: 16px;
+      stroke: #1a2e1a;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.2s;
+    }
+
+    /* Override Swiper default button positioning */
+    .team-swiper-prev::after,
+    .team-swiper-next::after {
+      display: none;
+    }
+
+    /* Pagination */
+    .team-swiper-pagination {
+      position: static;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .team-swiper-pagination .swiper-pagination-bullet {
+      width: 7px;
+      height: 7px;
+      background: #1a2e1a;
+      opacity: 0.25;
+      margin: 0;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .team-swiper-pagination .swiper-pagination-bullet-active {
+      opacity: 1;
+      transform: scale(1.25);
+    }
+  </style>
+</head>
+<body>
+
+  <section class="team-section">
+    <h2 class="team-section__heading">Every move, intentional</h2>
+
+    <div class="team-swiper-outer">
+      <div class="swiper team-swiper">
+        <div class="swiper-wrapper">
+
+          <!-- Slide 1 -->
+          <div class="swiper-slide">
+            <div class="team-card__image-wrapper">
+              <div class="team-card__accent"></div>
+              <img class="team-card__photo" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80" alt="Tim Williamson">
+            </div>
+            <div class="team-card__bio">
+              <h3 class="team-card__name">Tim Williamson</h3>
+              <p class="team-card__role">Founder / CEO</p>
+              <a href="#" class="team-card__linkedin" aria-label="LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.45 20.45h-3.554v-5.57c0-1.328-.024-3.037-1.851-3.037-1.853 0-2.136 1.446-2.136 2.94v5.667H9.356V9h3.414v1.561h.048c.476-.9 1.637-1.85 3.368-1.85 3.6 0 4.265 2.37 4.265 5.455v6.284zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Slide 2 -->
+          <div class="swiper-slide">
+            <div class="team-card__image-wrapper">
+              <div class="team-card__accent"></div>
+              <img class="team-card__photo" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80" alt="Sarah Chen">
+            </div>
+            <div class="team-card__bio">
+              <h3 class="team-card__name">Sarah Chen</h3>
+              <p class="team-card__role">Head of Strategy</p>
+              <a href="#" class="team-card__linkedin" aria-label="LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.45 20.45h-3.554v-5.57c0-1.328-.024-3.037-1.851-3.037-1.853 0-2.136 1.446-2.136 2.94v5.667H9.356V9h3.414v1.561h.048c.476-.9 1.637-1.85 3.368-1.85 3.6 0 4.265 2.37 4.265 5.455v6.284zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Slide 3 -->
+          <div class="swiper-slide">
+            <div class="team-card__image-wrapper">
+              <div class="team-card__accent"></div>
+              <img class="team-card__photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80" alt="Marcus Rivera">
+            </div>
+            <div class="team-card__bio">
+              <h3 class="team-card__name">Marcus Rivera</h3>
+              <p class="team-card__role">Lead Designer</p>
+              <a href="#" class="team-card__linkedin" aria-label="LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.45 20.45h-3.554v-5.57c0-1.328-.024-3.037-1.851-3.037-1.853 0-2.136 1.446-2.136 2.94v5.667H9.356V9h3.414v1.561h.048c.476-.9 1.637-1.85 3.368-1.85 3.6 0 4.265 2.37 4.265 5.455v6.284zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Slide 4 -->
+          <div class="swiper-slide">
+            <div class="team-card__image-wrapper">
+              <div class="team-card__accent"></div>
+              <img class="team-card__photo" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80" alt="Priya Patel">
+            </div>
+            <div class="team-card__bio">
+              <h3 class="team-card__name">Priya Patel</h3>
+              <p class="team-card__role">Growth Director</p>
+              <a href="#" class="team-card__linkedin" aria-label="LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.45 20.45h-3.554v-5.57c0-1.328-.024-3.037-1.851-3.037-1.853 0-2.136 1.446-2.136 2.94v5.667H9.356V9h3.414v1.561h.048c.476-.9 1.637-1.85 3.368-1.85 3.6 0 4.265 2.37 4.265 5.455v6.284zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Slide 5 -->
+          <div class="swiper-slide">
+            <div class="team-card__image-wrapper">
+              <div class="team-card__accent"></div>
+              <img class="team-card__photo" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80" alt="James Okafor">
+            </div>
+            <div class="team-card__bio">
+              <h3 class="team-card__name">James Okafor</h3>
+              <p class="team-card__role">Operations Lead</p>
+              <a href="#" class="team-card__linkedin" aria-label="LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.45 20.45h-3.554v-5.57c0-1.328-.024-3.037-1.851-3.037-1.853 0-2.136 1.446-2.136 2.94v5.667H9.356V9h3.414v1.561h.048c.476-.9 1.637-1.85 3.368-1.85 3.6 0 4.265 2.37 4.265 5.455v6.284zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls: prev | dots | next -->
+    <div class="team-swiper-controls">
+      <div class="team-swiper-prev">
+        <svg viewBox="0 0 16 16"><polyline points="10,2 4,8 10,14"/></svg>
+      </div>
+      <div class="team-swiper-pagination"></div>
+      <div class="team-swiper-next">
+        <svg viewBox="0 0 16 16"><polyline points="6,2 12,8 6,14"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    const teamSwiper = new Swiper('.team-swiper', {
+      // Core
+      slidesPerView: 'auto',
+      centeredSlides: true,
+      loop: true,
+      speed: 500,
+
+      // Space between slides accounts for the scale gap
+      spaceBetween: 0,
+
+      // Navigation arrows
+      navigation: {
+        nextEl: '.team-swiper-next',
+        prevEl: '.team-swiper-prev',
+      },
+
+      // Pagination dots
+      pagination: {
+        el: '.team-swiper-pagination',
+        clickable: true,
+      },
+    });
+  </script>
+
+</body>
+</html>
