@@ -6,7 +6,7 @@
   <title>Team Slider</title>
 
   <!-- Swiper CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <link rel="stylesheet" href="vendor/swiper.min.css">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,6 +44,7 @@
       letter-spacing: -0.5px;
       color: #1a2e1a;
       margin-bottom: 56px;
+      padding: 0 40px;
     }
 
     /* ── Swiper container ── */
@@ -53,10 +54,12 @@
       overflow: visible;
     }
 
-    /* Clip to viewport width on the outer wrapper */
+    /* Clip horizontally only — overflow-x:clip doesn't create a block formatting
+       context so children can still overflow vertically (bio below photos). */
     .team-swiper-outer {
       width: 100%;
-      overflow: hidden;
+      overflow-x: clip;
+      overflow-y: visible;
     }
 
     /* ── Slide base ── */
@@ -66,18 +69,22 @@
       flex-direction: column;
       align-items: center;
       gap: 20px;
-      transform: scale(0.67);
-      opacity: 0.45;
-      transition:
-        transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        opacity   0.5s ease;
+      /* opacity on inactive handled via JS coverflow scale */
+      transition: opacity 0.4s ease;
       cursor: pointer;
     }
 
     .swiper-slide-active {
-      transform: scale(1);
-      opacity: 1;
       cursor: default;
+    }
+
+    /* Fade bio and accent on inactive — JS setTranslate handles scale */
+    .swiper-slide:not(.swiper-slide-active) {
+      opacity: 0.45;
+    }
+
+    .swiper-slide-active {
+      opacity: 1;
     }
 
     /* ── Photo wrapper ── */
@@ -113,9 +120,14 @@
       object-position: top;
       display: block;
       z-index: 1;
-      /* placeholder background */
-      background: #b8cbb4;
     }
+
+    /* CSS-only photo placeholders when no real image is present */
+    .team-card__photo--p1 { background: linear-gradient(160deg, #b0c4ae 0%, #7a9e85 100%); }
+    .team-card__photo--p2 { background: linear-gradient(160deg, #c4b8ae 0%, #9e8a7a 100%); }
+    .team-card__photo--p3 { background: linear-gradient(160deg, #aeb8c4 0%, #7a859e 100%); }
+    .team-card__photo--p4 { background: linear-gradient(160deg, #c4aebc 0%, #9e7a94 100%); }
+    .team-card__photo--p5 { background: linear-gradient(160deg, #c4c4ae 0%, #9e9e7a 100%); }
 
     /* ── Bio ── */
     .team-card__bio {
@@ -171,21 +183,25 @@
       margin-top: 40px;
     }
 
-    /* Nav buttons */
+    /* Nav buttons — force static so Swiper can't make them absolute */
     .team-swiper-prev,
     .team-swiper-next {
-      position: static;
-      width: 40px;
-      height: 40px;
+      position: static !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      width: 40px !important;
+      height: 40px !important;
       border-radius: 50%;
       border: 1.5px solid #1a2e1a;
       background: transparent;
-      display: flex;
+      display: flex !important;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: background 0.2s, border-color 0.2s;
-      margin: 0;
+      margin: 0 !important;
       flex-shrink: 0;
     }
 
@@ -217,12 +233,15 @@
       display: none;
     }
 
-    /* Pagination */
+    /* Pagination — override Swiper's absolute/width:100% defaults */
     .team-swiper-pagination {
-      position: static;
-      display: flex;
+      position: static !important;
+      width: auto !important;
+      display: flex !important;
       align-items: center;
       gap: 6px;
+      bottom: auto !important;
+      left: auto !important;
     }
 
     .team-swiper-pagination .swiper-pagination-bullet {
@@ -230,7 +249,7 @@
       height: 7px;
       background: #1a2e1a;
       opacity: 0.25;
-      margin: 0;
+      margin: 0 !important;
       transition: opacity 0.2s, transform 0.2s;
     }
 
@@ -253,7 +272,7 @@
           <div class="swiper-slide">
             <div class="team-card__image-wrapper">
               <div class="team-card__accent"></div>
-              <img class="team-card__photo" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80" alt="Tim Williamson">
+              <div class="team-card__photo team-card__photo--p1"></div>
             </div>
             <div class="team-card__bio">
               <h3 class="team-card__name">Tim Williamson</h3>
@@ -270,7 +289,7 @@
           <div class="swiper-slide">
             <div class="team-card__image-wrapper">
               <div class="team-card__accent"></div>
-              <img class="team-card__photo" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80" alt="Sarah Chen">
+              <div class="team-card__photo team-card__photo--p2"></div>
             </div>
             <div class="team-card__bio">
               <h3 class="team-card__name">Sarah Chen</h3>
@@ -287,7 +306,7 @@
           <div class="swiper-slide">
             <div class="team-card__image-wrapper">
               <div class="team-card__accent"></div>
-              <img class="team-card__photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80" alt="Marcus Rivera">
+              <div class="team-card__photo team-card__photo--p3"></div>
             </div>
             <div class="team-card__bio">
               <h3 class="team-card__name">Marcus Rivera</h3>
@@ -304,7 +323,7 @@
           <div class="swiper-slide">
             <div class="team-card__image-wrapper">
               <div class="team-card__accent"></div>
-              <img class="team-card__photo" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80" alt="Priya Patel">
+              <div class="team-card__photo team-card__photo--p4"></div>
             </div>
             <div class="team-card__bio">
               <h3 class="team-card__name">Priya Patel</h3>
@@ -321,7 +340,7 @@
           <div class="swiper-slide">
             <div class="team-card__image-wrapper">
               <div class="team-card__accent"></div>
-              <img class="team-card__photo" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80" alt="James Okafor">
+              <div class="team-card__photo team-card__photo--p5"></div>
             </div>
             <div class="team-card__bio">
               <h3 class="team-card__name">James Okafor</h3>
@@ -351,30 +370,84 @@
   </section>
 
   <!-- Swiper JS -->
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="vendor/swiper.min.js"></script>
   <script>
+    // Swiper 12 uses translate-jump loop (no DOM clones), which means the active
+    // slide always starts at DOM position 0 with nothing to its left on first render.
+    // Fix: clone slides before init so real content exists on both sides.
+    const COUNT = 5;
+    const wrapper = document.querySelector('.swiper-wrapper');
+    const originals = [...wrapper.children];
+    // Append a copy after the originals
+    originals.forEach(s => wrapper.appendChild(s.cloneNode(true)));
+    // Prepend a copy before — forEach prepend reverses, so iterate in reverse to keep order
+    [...originals].reverse().forEach(s => wrapper.prepend(s.cloneNode(true)));
+    // DOM is now: [5 clones in order][5 originals][5 clones in order] = 15 slides
+    // initialSlide: COUNT + 2 = slide index 7 (Marcus Rivera in middle set)
+
+    // ── Custom 5-dot pagination (built before Swiper init) ──────────────────
+    const paginationEl = document.querySelector('.team-swiper-pagination');
+
+    function updateDots(activeIndex) {
+      const realDot = ((activeIndex % COUNT) + COUNT) % COUNT;
+      paginationEl.querySelectorAll('.swiper-pagination-bullet').forEach((dot, i) => {
+        dot.classList.toggle('swiper-pagination-bullet-active', i === realDot);
+      });
+    }
+
+    for (let i = 0; i < COUNT; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'swiper-pagination-bullet';
+      dot.addEventListener('click', () => {
+        const base = Math.floor(teamSwiper.activeIndex / COUNT) * COUNT;
+        const target = base + i;
+        const clamped = Math.max(COUNT, Math.min(COUNT * 2 - 1, target));
+        teamSwiper.slideTo(clamped);
+      });
+      paginationEl.appendChild(dot);
+    }
+
     const teamSwiper = new Swiper('.team-swiper', {
-      // Core
       slidesPerView: 'auto',
       centeredSlides: true,
-      loop: true,
+      loop: false,
+      initialSlide: COUNT + 2,
       speed: 500,
+      spaceBetween: 20,
+      watchSlidesProgress: true,
 
-      // Space between slides accounts for the scale gap
-      spaceBetween: 0,
-
-      // Navigation arrows
-      navigation: {
-        nextEl: '.team-swiper-next',
-        prevEl: '.team-swiper-prev',
-      },
-
-      // Pagination dots
-      pagination: {
-        el: '.team-swiper-pagination',
-        clickable: true,
+      on: {
+        setTranslate(swiper) {
+          swiper.slides.forEach((slide) => {
+            const p = slide.progress || 0;
+            const scale = 1 - Math.min(Math.abs(p), 1) * 0.33;
+            slide.style.transform = `scale(${scale})`;
+          });
+        },
+        setTransition(swiper, duration) {
+          swiper.slides.forEach(slide => {
+            slide.style.transition = `transform ${duration}ms ease`;
+          });
+        },
+        slideChange(swiper) {
+          // Seamless wrap: jump to equivalent slide in the middle set
+          const idx = swiper.activeIndex;
+          if (idx >= COUNT * 2) {
+            swiper.slideTo(idx - COUNT, 0, false);
+          } else if (idx < COUNT) {
+            swiper.slideTo(idx + COUNT, 0, false);
+          }
+          updateDots(swiper.activeIndex);
+        },
+        init(swiper) {
+          updateDots(swiper.activeIndex);
+        }
       },
     });
+
+    // Wire nav buttons manually
+    document.querySelector('.team-swiper-prev').addEventListener('click', () => teamSwiper.slidePrev());
+    document.querySelector('.team-swiper-next').addEventListener('click', () => teamSwiper.slideNext());
   </script>
 
 </body>
